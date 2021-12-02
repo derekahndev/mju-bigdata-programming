@@ -9,30 +9,30 @@ PAGES = 100  # 크롤링할 페이지 수
 goods_no_list = []
 ranking_list = []
 
-product_title = []
-ranking_change = []
-item_category1 = []
-item_category2 = []
-brand_name = []
-pageview = []
-sales_qty = []
-like = []
-rating = []
-review_count = []
-article_tag_list = []
-price = []
+product_title = []  # 상품명
+ranking_change = []  # 랭킹 변동
+item_category1 = []  # 품목 대분류
+item_category2 = []  # 품목 소분류
+brand_name = []  # 브랜드명
+pageview = []  # 상품 조회수
+sales_qty = []  # 누적판매
+like = []  # 좋아요 수
+rating = []  # 구매 후기 점수
+review_count = []  # 구매 후기 수
+article_tag_list = []  # 상품 태그 리스트
+price = []  # 상품 가격
 
-age_18_ratio = []
-age_1923_ratio = []
-age_2428_ratio = []
-age_2933_ratio = []
-age_3439_ratio = []
-age_40_ratio = []
+age_18_ratio = []  # ~18세 구매 비율
+age_1923_ratio = []  # 19~23세 구매 비율
+age_2428_ratio = []  # 24~28세 구매 비율
+age_2933_ratio = []  # 29~33세 구매 비율
+age_3439_ratio = []  # 34~39세 구매 비율
+age_40_ratio = []  # 40~세 구매 비율
 
-gender_male_ratio = []
-gender_female_ratio = []
+gender_male_ratio = []  # 남성 구매 비율
+gender_female_ratio = []  # 여성 구매 비율
 
-n_label = []
+n_label = []  # 한정 판매 등 이벤트
 
 
 # 페이지 내의 크롤링할 상품의 페이지 번호를 가져옴
