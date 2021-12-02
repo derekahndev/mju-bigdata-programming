@@ -3,7 +3,9 @@ import xlsxwriter
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-PAGES = 100
+PAGES = 100  # 크롤링할 페이지 수
+
+# 크롤링한 내용을 임시로 저장할 리스트
 goods_no_list = []
 ranking_list = []
 
@@ -33,6 +35,7 @@ gender_female_ratio = []
 n_label = []
 
 
+# 페이지 내의 크롤링할 상품의 페이지 번호를 가져옴
 def get_goods_no_list(url):
     response = requests.get(url)
 
@@ -47,6 +50,8 @@ def get_goods_no_list(url):
         return
 
 
+# 상품의 랭킹 변동 값을 가져오는 함수
+# 특히 상품의 랭킹 변동은 상품의 상세 페이지가 아닌 랭킹 페이지에 존재하여 따로 가져오도록 함수를 정의함
 def get_ranking_list(url):
     temp_ranking_list = []
 
@@ -84,6 +89,7 @@ def get_ranking_list(url):
     return temp_ranking_list
 
 
+# 가져온 값이 한글 단위로 적혀있을 경우 이를 숫자로 바꾸는 함수
 def count_str(str):
     count = str[:-1]
     unit = str[-1]
@@ -95,6 +101,7 @@ def count_str(str):
         return int(count)
 
 
+# xlsx 파일을 생성하는 함수
 def worksheet_init(worksheet):
     worksheet.set_column('C:C', 30)
     worksheet.set_column('D:D', 15)
@@ -129,6 +136,7 @@ def worksheet_init(worksheet):
     worksheet.write('V1', 'n_label')
 
 
+# xlsx 파일에 크롤링한 값을 저장하는 함수
 def worksheet_write(i):
     worksheet.write(i + 1, 0, i + 1)
     worksheet.write(i + 1, 1, ranking_change[i])
@@ -157,7 +165,8 @@ def worksheet_write(i):
     worksheet.write(i + 1, 21, n_label[i])
 
 
-for page in range(55, PAGES):
+for page in range(PAGES):
+    # 먼저 페이지를 불러와 페이지 내의 상품 상세 페이지 번호와 랭킹 변동 값을 가져옴
     print("loading pages...")
 
     url = 'https://search.musinsa.com/ranking/best?period=month_3&age=ALL&mainCategory=&subCategory=&leafCategory=&price=&golf=false&newProduct=false&exclusive=false&discount=false&soldOut=false&page={}&viewType=small&priceMin=&priceMax='.format(
@@ -168,6 +177,7 @@ for page in range(55, PAGES):
     print("page loading complete.")
     print("crawling pages...")
 
+    # 상세 페이지에 있는 정보를 크롤링함
     for i in range(len(goods_no_list)):
         url = 'https://store.musinsa.com/app/goods/{}'.format(goods_no_list[i])
 
@@ -183,6 +193,8 @@ for page in range(55, PAGES):
         driver.implicitly_wait(3)
         driver.get(url)
 
+        # 각각의 값들이 존재하지 않는 경우가 너무 많아 대부분의 값들이 존재하지 않는 경우를 예외처리함
+        # 값들은 존재하지 않는 경우도 None, 빈 칸 등의 여러 예외가 존재하여 모든 예외에 대하여 처리함
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
         temp_product_title = soup.select_one('#page_product_detail > div.right_area.page_detail_product > '
@@ -279,6 +291,8 @@ for page in range(55, PAGES):
         rating.append(temp_rating)
         review_count.append(temp_review_count)
         tag_list = ''
+        
+        # 상품의 태그 리스트의 경우 한 번에 가져올 수 없어 각각의 값들을 더해 string 형태로 저장함
         if temp_article_tag_list is not None:
             for tag in temp_article_tag_list:
                 tag_list = tag_list + tag + ' '
@@ -297,6 +311,9 @@ for page in range(55, PAGES):
 
         n_label.append(temp_n_label)
 
+    # 크롤링 중간에 selenium의 알 수 없는 오류로 인해 끊기는 경우가 발생함
+    # 이를 방지하기 위해 매 페이지마다 중간에 계속해서 백업 파일을 생성하도록 설계함
+    # 이를 통해 작업이 중단되더라도 백업 파일을 나중에 연결할 수 있게 됨
     filename = 'musinsa_data' + str(page) + '.xlsx'
 
     workbook = xlsxwriter.Workbook(filename)
@@ -309,4 +326,5 @@ for page in range(55, PAGES):
 
     workbook.close()
 
+    # 크롤링 작업이 매우 오래걸리므로 진행 상황 확인을 위해 추가함
     print(f"{page + 1} page work done.")
